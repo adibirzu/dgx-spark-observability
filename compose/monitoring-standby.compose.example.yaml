@@ -1,0 +1,10 @@
+# Render this file on the standby node but do not start it until manual promotion.
+services:
+  prometheus:
+    extends:
+      file: monitoring-primary.compose.example.yaml
+      service: prometheus
+  grafana:
+    extends:
+      file: monitoring-primary.compose.example.yaml
+      service: grafana
