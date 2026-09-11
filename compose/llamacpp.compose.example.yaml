@@ -1,0 +1,14 @@
+services:
+  llamacpp:
+    image: ${LLAMACPP_IMAGE}
+    command:
+      - -m
+      - ${LLAMACPP_MODEL_PATH}
+      - --host
+      - ${LLAMACPP_BIND_ADDRESS}
+      - --port
+      - "8080"
+      - --metrics
+    volumes:
+      - ${LLAMACPP_MODEL_DIRECTORY}:/models:ro
+    restart: unless-stopped

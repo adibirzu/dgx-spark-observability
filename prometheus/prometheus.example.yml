@@ -21,5 +21,11 @@ scrape_configs:
   - job_name: litellm
     metrics_path: /metrics
     file_sd_configs: [{files: [targets.private.yml]}]
+  - job_name: llamacpp
+    metrics_path: /metrics
+    file_sd_configs: [{files: [targets.private.yml]}]
+  - job_name: ollama
+    metrics_path: /metrics
+    file_sd_configs: [{files: [targets.private.yml]}]
   - job_name: backup
     file_sd_configs: [{files: [targets.private.yml]}]
