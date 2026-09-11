@@ -1,0 +1,6 @@
+- targets: ["REPLACE_WITH_PRIVATE_VLLM_METRICS_ADDRESS"]
+  labels: {job: vllm, node: primary}
+- targets: ["REPLACE_WITH_PRIVATE_LLAMACPP_METRICS_ADDRESS"]
+  labels: {job: llamacpp, node: primary}
+- targets: ["REPLACE_WITH_PRIVATE_OLLAMA_EXPORTER_ADDRESS"]
+  labels: {job: ollama, node: primary}

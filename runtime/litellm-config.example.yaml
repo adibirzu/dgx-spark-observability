@@ -1,0 +1,26 @@
+model_list:
+  - model_name: qwen3.8-flash-next
+    litellm_params:
+      model: openai/Qwen3.8-Flash-Next
+      api_base: os.environ/VLLM_API_BASE
+  - model_name: ollama-local
+    litellm_params:
+      model: ollama/LOCAL_MODEL_NAME
+      api_base: os.environ/OLLAMA_API_BASE
+  - model_name: llamacpp-local
+    litellm_params:
+      model: openai/LOCAL_MODEL_NAME
+      api_base: os.environ/LLAMACPP_API_BASE
+  - model_name: anthropic-claude
+    litellm_params:
+      model: anthropic/claude-sonnet-4-5
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: os.environ/LITELLM_DATABASE_URL
+litellm_settings:
+  turn_off_message_logging: true
+  success_callback:
+    - langfuse
+  model_group_settings:
+    forward_client_headers_to_llm_api:
+      - anthropic-claude

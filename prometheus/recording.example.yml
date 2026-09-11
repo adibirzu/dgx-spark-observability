@@ -7,3 +7,9 @@ groups:
         expr: DCGM_FI_DEV_FB_USED / clamp_min(DCGM_FI_DEV_FB_TOTAL, 1)
       - record: fleet:backup_age_seconds
         expr: time() - node_textfile_mtime_seconds
+      - record: llm_engine:up
+        expr: up{job=~"vllm|llamacpp|ollama|litellm"}
+      - record: vllm:engine_up
+        expr: up{job="vllm"}
+        labels:
+          engine: "vllm"

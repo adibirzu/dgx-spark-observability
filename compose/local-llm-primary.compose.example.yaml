@@ -1,0 +1,76 @@
+services:
+  litellm:
+    image: ${LITELLM_IMAGE}
+    command: ["--config", "/app/config.yaml", "--port", "4000"]
+    env_file: ${RUNTIME_ENV_FILE}
+    ports:
+      - 127.0.0.1:${LITELLM_PORT}:4000
+    volumes:
+      - ${LITELLM_CONFIG_FILE}:/app/config.yaml:ro
+    depends_on:
+      langfuse-postgres: {condition: service_healthy}
+      langfuse-web: {condition: service_started}
+    restart: unless-stopped
+
+  langfuse-web:
+    image: ${LANGFUSE_IMAGE}
+    env_file: ${RUNTIME_ENV_FILE}
+    ports:
+      - 127.0.0.1:${LANGFUSE_PORT}:3000
+    depends_on:
+      langfuse-postgres: {condition: service_healthy}
+      langfuse-clickhouse: {condition: service_healthy}
+      langfuse-redis: {condition: service_healthy}
+    restart: unless-stopped
+
+  langfuse-worker:
+    image: ${LANGFUSE_IMAGE}
+    command: ["worker"]
+    env_file: ${RUNTIME_ENV_FILE}
+    depends_on:
+      langfuse-postgres: {condition: service_healthy}
+      langfuse-clickhouse: {condition: service_healthy}
+      langfuse-redis: {condition: service_healthy}
+    restart: unless-stopped
+
+  langfuse-postgres:
+    image: ${POSTGRES_IMAGE}
+    environment:
+      POSTGRES_DB: ${LANGFUSE_POSTGRES_DB}
+      POSTGRES_USER: ${LANGFUSE_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${LANGFUSE_POSTGRES_PASSWORD}
+    volumes:
+      - ${RUNTIME_STATE_DIRECTORY}/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  langfuse-clickhouse:
+    image: ${CLICKHOUSE_IMAGE}
+    environment:
+      CLICKHOUSE_DB: default
+      CLICKHOUSE_USER: ${LANGFUSE_CLICKHOUSE_USER}
+      CLICKHOUSE_PASSWORD: ${LANGFUSE_CLICKHOUSE_PASSWORD}
+    volumes:
+      - ${RUNTIME_STATE_DIRECTORY}/clickhouse:/var/lib/clickhouse
+    healthcheck:
+      test: ["CMD-SHELL", "clickhouse-client --query 'SELECT 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  langfuse-redis:
+    image: ${REDIS_IMAGE}
+    command: ["redis-server", "--requirepass", "${LANGFUSE_REDIS_PASSWORD}"]
+    volumes:
+      - ${RUNTIME_STATE_DIRECTORY}/redis:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli --no-auth-warning -a $$LANGFUSE_REDIS_PASSWORD ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped

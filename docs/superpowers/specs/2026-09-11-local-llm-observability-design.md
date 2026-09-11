@@ -29,6 +29,12 @@ LiteLLM sends non-content request traces to the local Langfuse deployment. Langf
 
 Prometheus receives host, GPU, container, vLLM, LiteLLM, Langfuse, database health, backup, and gateway request aggregates. It must never scrape or derive prompt/completion bodies, Authorization headers, API keys, user names, IP addresses, or arbitrary request IDs. Grafana retains the original fleet, serving, gateway, and recovery dashboards and adds a tracing/dashboard health view with link-outs to authenticated Langfuse traces where safe.
 
+## Engine performance contract
+
+Native Prometheus metrics are preferred for each local engine. vLLM provides queue/running requests, prompt and generation tokens per second, time-to-first-token, inter-token and end-to-end latency, KV-cache utilization, prefix-cache hits, preemptions, and outcomes. llama.cpp is launched with `--metrics` and provides prompt/decode tokens per second, queue state, processed/predicted tokens, and cache/context state. Ollama has no native Prometheus endpoint, so a local read-only collector provides health and loaded-model counts; per-request Ollama performance is measured only when routed through LiteLLM. The project deliberately does not use a payload-intercepting Ollama proxy.
+
+The engine label is restricted to `vllm`, `llamacpp`, `ollama`, or `litellm`. DCGM exporter and node-exporter provide GPU, unified-memory where available, thermals, power, clocks, errors, CPU, RAM, disk, and network context. Remote write, external analytics, third-party dashboard plugins, payload labels, and unreviewed collector images are prohibited.
+
 ## Runtime configuration and replication
 
 Tracked example files contain variable names and safe defaults only. `scripts/bootstrap-local-llm.sh` creates a machine-specific ignored `private/runtime.env` (mode 0600), random service secrets, state directories, and a generated LiteLLM virtual-key file. `scripts/render-local-llm.sh` refuses unsafe bindings, missing secret files, non-0600 modes, public endpoints, or any target outside the configured private networks. The generated file names and the required `git check-ignore` assertions are documented in the runbook.
