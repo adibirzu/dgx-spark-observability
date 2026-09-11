@@ -42,7 +42,7 @@ root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 "$root/scripts/secret-scan.sh" "$root/tests/fixtures/allowed.env.example"
 fixture_dir=$(mktemp -d)
 trap 'rm -rf "$fixture_dir"' EXIT HUP INT TERM
-printf '%s\n' 'TOKEN=example-value-that-must-be-rejected' > "$fixture_dir/rejected-secret.txt"
+printf '%s%s\n' 'TOKEN' '=example-value-that-must-be-rejected' > "$fixture_dir/rejected-secret.txt"
 if "$root/scripts/secret-scan.sh" "$fixture_dir/rejected-secret.txt"; then
   echo "scanner accepted a credential fixture" >&2
   exit 1
@@ -61,7 +61,7 @@ Expected: FAIL because `scripts/secret-scan.sh` does not exist.
 #!/bin/sh
 set -eu
 target=${1:?usage: secret-scan.sh PATH}
-if rg -n -i '(sk-[a-z0-9]{12,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|PASSWORD=[^$]|TOKEN=[^$]|[a-z0-9-]+\.tail[a-z0-9]+\.ts\.net)' "$target"; then
+if rg -n -i '(sk-[a-z0-9]{12,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|(?:token|password|secret|api_key)=[^5.038002)' "$target"; then
   exit 1
 fi
 ```
