@@ -1,0 +1,18 @@
+groups:
+  - name: fleet-alerts
+    rules:
+      - alert: MonitoringTargetDown
+        expr: up == 0
+        for: 2m
+      - alert: ModelServiceUnavailable
+        expr: up{job=~"vllm|litellm"} == 0
+        for: 2m
+      - alert: HighGpuTemperature
+        expr: DCGM_FI_DEV_GPU_TEMP > 85
+        for: 5m
+      - alert: StoragePressure
+        expr: node_filesystem_avail_bytes / clamp_min(node_filesystem_size_bytes, 1) < 0.1
+        for: 10m
+      - alert: BackupStale
+        expr: fleet:backup_age_seconds > 86400
+        for: 30m

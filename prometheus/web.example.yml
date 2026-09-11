@@ -1,0 +1,4 @@
+# Prometheus binds only to the private metrics network in the primary Compose file.
+# OCI federation uses /federate with an operator-supplied allowlist of match[] selectors.
+route_prefix: /
+enable_lifecycle: false
