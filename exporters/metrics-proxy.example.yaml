@@ -1,0 +1,6 @@
+# The LLM metrics targets are private endpoints specified only in the ignored
+# Prometheus targets file. No proxy process is published by this bundle.
+vllm_metrics_path: /metrics
+litellm_metrics_path: /metrics
+llama_metrics_path: /metrics
+backup_status_metric: node_textfile_mtime_seconds

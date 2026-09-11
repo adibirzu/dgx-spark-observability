@@ -1,0 +1,39 @@
+services:
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:REPLACE_WITH_REVIEWED_TAG
+    command:
+      - --web.listen-address=${METRICS_BIND_ADDRESS}:9100
+      - --path.rootfs=/host
+      - --collector.textfile.directory=/var/lib/node_exporter/textfile_collector
+    network_mode: host
+    pid: host
+    read_only: true
+    cap_drop: [ALL]
+    volumes:
+      - /:/host:ro,rslave
+      - ${BACKUP_STATUS_DIRECTORY}:/var/lib/node_exporter/textfile_collector:ro
+    restart: unless-stopped
+
+  dcgm-exporter:
+    image: nvcr.io/nvidia/k8s/dcgm-exporter:REPLACE_WITH_REVIEWED_TAG
+    command: ["-a", "${METRICS_BIND_ADDRESS}:9400"]
+    network_mode: host
+    cap_drop: [ALL]
+    restart: unless-stopped
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:REPLACE_WITH_REVIEWED_TAG
+    command:
+      - --listen_ip=${METRICS_BIND_ADDRESS}
+      - --port=8080
+      - --docker_only=true
+    network_mode: host
+    privileged: false
+    read_only: true
+    cap_drop: [ALL]
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+    restart: unless-stopped
