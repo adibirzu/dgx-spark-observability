@@ -249,7 +249,7 @@ git commit -m "feat: add unified Grafana dashboards"
 #!/bin/sh
 set -eu
 primary=compose/monitoring-primary.compose.example.yaml
-grep -q 'GF_AUTH_ANONYMOUS_ENABLED=false' "$primary"
+grep -q 'GF_AUTH_ANONYMOUS_ENABLED: "false"' "$primary"
 grep -q '127.0.0.1\|${GRAFANA_BIND_ADDRESS}' "$primary"
 if rg -n '0\.0\.0\.0:' "$primary"; then
   echo "primary compose may expose Grafana publicly" >&2
