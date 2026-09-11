@@ -1,0 +1,13 @@
+.worktrees/
+.env
+.env.*
+!.env.example
+private/
+backups/
+*.pem
+*.key
+*.p12
+*.pfx
+*.tar
+*.tar.gz
+*.zip
