@@ -1,0 +1,25 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    deployment: REPLACE_WITH_SANITIZED_DEPLOYMENT_NAME
+
+rule_files:
+  - alerts.example.yml
+  - recording.example.yml
+
+scrape_configs:
+  - job_name: node
+    file_sd_configs: [{files: [targets.private.yml]}]
+  - job_name: gpu
+    file_sd_configs: [{files: [targets.private.yml]}]
+  - job_name: containers
+    file_sd_configs: [{files: [targets.private.yml]}]
+  - job_name: vllm
+    metrics_path: /metrics
+    file_sd_configs: [{files: [targets.private.yml]}]
+  - job_name: litellm
+    metrics_path: /metrics
+    file_sd_configs: [{files: [targets.private.yml]}]
+  - job_name: backup
+    file_sd_configs: [{files: [targets.private.yml]}]

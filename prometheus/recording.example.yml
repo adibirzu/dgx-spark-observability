@@ -1,0 +1,9 @@
+groups:
+  - name: fleet-recording
+    rules:
+      - record: fleet:request_error_ratio:5m
+        expr: sum(rate(http_requests_total{code=~"5.."}[5m])) / clamp_min(sum(rate(http_requests_total[5m])), 1)
+      - record: fleet:gpu_memory_pressure:ratio
+        expr: DCGM_FI_DEV_FB_USED / clamp_min(DCGM_FI_DEV_FB_TOTAL, 1)
+      - record: fleet:backup_age_seconds
+        expr: time() - node_textfile_mtime_seconds
