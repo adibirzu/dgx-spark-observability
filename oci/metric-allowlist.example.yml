@@ -1,0 +1,4 @@
+# Supply these match[] selectors only to a protected OCI Management Agent configuration.
+match[]:
+  - '{__name__=~"up|DCGM_FI_DEV_.*|node_.*|container_.*"}'
+  - '{__name__=~"fleet:.*|vllm:.*|litellm:.*"}'
