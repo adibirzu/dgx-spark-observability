@@ -19,6 +19,16 @@ general_settings:
   database_url: os.environ/LITELLM_DATABASE_URL
 litellm_settings:
   turn_off_message_logging: true
+  # Cost tracking per coding harness (https://docs.litellm.ai/docs/tutorials/cost_tracking_coding):
+  # LiteLLM >= 1.73 records the incoming User-Agent header as a spend-log tag
+  # automatically — no extra config. Each coding CLI (Claude Code, Codex,
+  # Gemini CLI, OpenCode, pi, Grok, Kimi, Cursor agent, Cline, Copilot, …)
+  # sends its own vendor User-Agent, recorded verbatim, so the Admin UI Logs /
+  # Usage dashboard slices cost and active users per tool with zero
+  # harness-side changes. Do NOT set
+  # litellm_settings.disable_add_user_agent_to_request_tags (it defaults to
+  # false; true would turn this tracking off). For per-developer attribution
+  # on top, issue one virtual key per developer (user_id set).
   success_callback:
     - langfuse
   model_group_settings:
