@@ -15,22 +15,31 @@ services:
   langfuse-web:
     image: ${LANGFUSE_IMAGE}
     env_file: ${RUNTIME_ENV_FILE}
+    environment:
+      NEXTAUTH_URL: http://127.0.0.1:${LANGFUSE_PORT}
+      LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT: http://127.0.0.1:${MINIO_PORT}
+      LANGFUSE_S3_MEDIA_UPLOAD_INTERNAL_ENDPOINT: http://langfuse-minio:9000
     ports:
       - 127.0.0.1:${LANGFUSE_PORT}:3000
     depends_on:
       langfuse-postgres: {condition: service_healthy}
       langfuse-clickhouse: {condition: service_healthy}
       langfuse-redis: {condition: service_healthy}
+      langfuse-minio: {condition: service_healthy}
     restart: unless-stopped
 
   langfuse-worker:
-    image: ${LANGFUSE_IMAGE}
-    command: ["worker"]
+    image: ${LANGFUSE_WORKER_IMAGE}
     env_file: ${RUNTIME_ENV_FILE}
+    environment:
+      NEXTAUTH_URL: http://127.0.0.1:${LANGFUSE_PORT}
+    ports:
+      - 127.0.0.1:3030:3030
     depends_on:
       langfuse-postgres: {condition: service_healthy}
       langfuse-clickhouse: {condition: service_healthy}
       langfuse-redis: {condition: service_healthy}
+      langfuse-minio: {condition: service_healthy}
     restart: unless-stopped
 
   langfuse-postgres:
@@ -57,10 +66,31 @@ services:
     volumes:
       - ${RUNTIME_STATE_DIRECTORY}/clickhouse:/var/lib/clickhouse
     healthcheck:
-      test: ["CMD-SHELL", "clickhouse-client --query 'SELECT 1'"]
-      interval: 10s
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8123/ping || exit 1"]
+      interval: 5s
       timeout: 5s
-      retries: 12
+      retries: 10
+      start_period: 1s
+    restart: unless-stopped
+
+  langfuse-minio:
+    image: ${MINIO_IMAGE}
+    entrypoint: sh
+    command: -c 'mkdir -p /data/langfuse && minio server --address ":9000" --console-address ":9001" /data'
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - 127.0.0.1:${MINIO_PORT}:9000
+      - 127.0.0.1:9091:9001
+    volumes:
+      - ${RUNTIME_STATE_DIRECTORY}/minio:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+      start_period: 1s
     restart: unless-stopped
 
   langfuse-redis:
